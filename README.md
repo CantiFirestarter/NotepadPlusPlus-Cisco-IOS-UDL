@@ -1,10 +1,8 @@
-# Notepad++ Cisco IOS XE Commands Syntax Highlighting
+# Notepad++ Cisco IOS UDL Highlighter
 
-<br />
-
-<img src="assets/cisco-logo.png" alt="Cisco Logo" title="Cisco" width="300" style="display: block;"/>
-
-<br />
+<p align="center">
+  <img src="assets/cisco-logo.png" alt="Cisco Logo" title="Cisco" width="300" />
+</p>
 
 > This is an enhanced version of the **User Defined Language (UDL)** made by LuisPisco. His UDL is found [here](https://github.com/notepad-plus-plus/userDefinedLanguages/blob/master/UDLs/Cisco_IOS_byLuisPisco.xml).
 
