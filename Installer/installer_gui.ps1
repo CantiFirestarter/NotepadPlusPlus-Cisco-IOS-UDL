@@ -5,13 +5,30 @@ Param(
 Add-Type -AssemblyName System.Windows.Forms
 Add-Type -AssemblyName System.Drawing
 
-$scriptDir = if ($PSScriptRoot) {
-    $PSScriptRoot
+try {
+
+if ($PSScriptRoot) {
+    $scriptDir = $PSScriptRoot
 } elseif ($PSCommandPath -and (Test-Path $PSCommandPath)) {
-    Split-Path -Parent $PSCommandPath
-} else {
-    try { Split-Path -Parent $MyInvocation.MyCommand.Definition } catch { Split-Path -Parent $MyInvocation.MyCommand.Path }
+    $scriptDir = Split-Path -Parent $PSCommandPath
+} elseif ($MyInvocation -and $MyInvocation.MyCommand) {
+    $def = $MyInvocation.MyCommand.Definition
+    $p = $MyInvocation.MyCommand.Path
+    if ($def -and (Test-Path $def)) { $scriptDir = Split-Path -Parent $def }
+    elseif ($p -and (Test-Path $p)) { $scriptDir = Split-Path -Parent $p }
 }
+
+# Fallback to EXE location when running packaged
+if (-not $scriptDir) {
+    try {
+        $exePath = [System.Diagnostics.Process]::GetCurrentProcess().MainModule.FileName
+        if ($exePath) { $scriptDir = Split-Path -Parent $exePath }
+    } catch { }
+}
+
+# Last-resort fallback to current directory
+if (-not $scriptDir) { $scriptDir = (Get-Location).Path }
+
 $repoRoot = Join-Path $scriptDir '..'
 
 # If scriptDir couldn't be determined (packaged EXE), fall back to EXE location
@@ -219,3 +236,17 @@ $btnClose.Add_Click({ $form.Close() })
 $form.Controls.Add($btnClose)
 
 [void]$form.ShowDialog()
+
+} catch {
+    # Log full error details to temp file and show a concise message box
+    try {
+        $log = Join-Path $env:TEMP 'installer_gui_error.log'
+        $details = $_.Exception.ToString() + "`r`nScriptStackTrace:`r`n" + ($_.ScriptStackTrace -join "`r`n") + "`r`nInvocation:`r`n" + ($_.InvocationInfo | Out-String)
+        $details | Out-File -FilePath $log -Encoding UTF8 -Force
+        $msg = "An unexpected error occurred. Details written to:`r`n$log`r`nError: $($_.Exception.Message)"
+        [System.Windows.Forms.MessageBox]::Show($msg, 'Installer Error', [System.Windows.Forms.MessageBoxButtons]::OK, [System.Windows.Forms.MessageBoxIcon]::Error) | Out-Null
+    } catch {
+        # Fallback if logging or MessageBox fails
+        Write-Error $_
+    }
+}

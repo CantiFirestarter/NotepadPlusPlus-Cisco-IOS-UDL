@@ -79,6 +79,22 @@ The GUI can relaunch itself elevated to perform system-wide installation of the 
 Packaging / CI notes:
 
 - The GitHub Actions workflow builds the GUI script into `dist\installer_gui.exe` and packages the files into `installer-package.zip` as release artifacts. The CI does not include a batch installer.
+
+Using the packaged EXE
+---------------------
+
+If you download the packaged installer from the project's Releases (or build it via CI), you'll get `installer-package.zip` containing `dist\installer_gui.exe` and the `files` folder.
+
+- Extract the ZIP and run `installer_gui.exe` by double-clicking it, or from PowerShell:
+
+  ```powershell
+  Start-Process -FilePath .\dist\installer_gui.exe -Wait
+  ```
+
+- The GUI shows checkboxes for `UDL`, `EnhanceAnyLexer` config, and `Auto-completion`.
+- Use the `Run as Admin` button to relaunch the installer elevated — this is required only to install the auto-completion files to `C:\Program Files\Notepad++\autoCompletion`.
+- The installer backs up existing files before replacing them and reports results in the GUI textbox.
+
 If the repository contains the `EnhanceAnyLexer` folder, the installers will copy its contents to `%AppData%\Notepad++\plugins\config\EnhanceAnyLexer` so the plugin can load its configuration. Existing contents are backed up (PowerShell uses timestamped backups; the batch installer moves existing contents to a `_backup_*` folder).
 
 Files with extensions `.cisco`, `.ios`, `.xe`, `.log`, `.txt`, `.conf`, and `.config` will automagically use this new UDL as their default language when opened with NotePad++. Remove or add any extension when desired.
