@@ -28,7 +28,7 @@ jobs:
       - name: Build GUI EXE (ps2exe)
         shell: powershell
         run: |
-          $src = 'installers\installer_gui.ps1'
+          $src = 'Installer\installer_gui.ps1'
           $outDir = 'dist'
           New-Item -ItemType Directory -Path $outDir -Force | Out-Null
           $outExe = Join-Path $outDir 'installer_gui.exe'
